@@ -18,8 +18,8 @@ typedef struct {
 } _sleeper_arg_t;
 
 context_t* context_create();
-bool context_set_time(context_t *ctx, uint64_t time);
+pthread_t context_set_time(context_t *ctx, uint64_t time);
 void context_destroy(context_t *ctx);
-void context_wait(context_t *ctx);
+void context_wait(context_t *ctx, pthread_t tid);
 
 #endif

@@ -1,3 +1,3 @@
 #!/bin/bash
 
-gcc -Wall -pedantic -Werror -o main ./src/*.c -Iinclude -pthread -DDEBUG
+gcc -Wall -pedantic -Werror -o main ./src/*.c -Iinclude -pthread -DDEBUG -g

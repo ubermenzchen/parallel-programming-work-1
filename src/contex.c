@@ -41,7 +41,7 @@ context_t* context_create() {
  * É criada uma nova thread que irá dormir até que se expire seu tempo dormindo.
  * Após o tempo expirar, o contexto se tornará inválido/falso.
  */
-bool context_set_time(context_t *ctx, uint64_t time) {
+pthread_t context_set_time(context_t *ctx, uint64_t time) {
     pthread_t sleeper;
     _sleeper_arg_t *arg = malloc(sizeof(_sleeper_arg_t));
 
@@ -50,9 +50,9 @@ bool context_set_time(context_t *ctx, uint64_t time) {
     arg->id = sleeper;
 
     if(pthread_create(&sleeper, NULL, _sleeper, (void*)arg))
-        return false;
+        return 0;
 
-    return true;
+    return sleeper;
 }
 
 /*
@@ -60,15 +60,20 @@ bool context_set_time(context_t *ctx, uint64_t time) {
  */
 void context_destroy(context_t *ctx) {
     pthread_mutex_destroy(ctx->mutex);
+    pthread_mutex_destroy(ctx->_wait);
+    pthread_cond_destroy(ctx->_cond);
     free(ctx->mutex);
+    free(ctx->_wait);
+    free(ctx->_cond);
     free(ctx);
 }
 
 /*
  * Aguarda o termino de um contexto, ou seja, quando o contexto não for válido (ctx->is_valid = false)
  */
-void context_wait(context_t *ctx) {
+void context_wait(context_t *ctx, pthread_t tid) {
     pthread_cond_wait(ctx->_cond, ctx->_wait);
+    pthread_join(tid, NULL);
 }
 
 /*
@@ -97,6 +102,7 @@ void* _sleeper(void *arg) {
 #ifdef DEBUG
     printf("Sleeper thread id %ld ended\n", args->id);
 #endif
+
     pthread_cond_broadcast(ctx->_cond);
     pthread_exit(NULL);
 }

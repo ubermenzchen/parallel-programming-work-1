@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <errno.h>
+#include <unistd.h>
 
 #include "defs.h"
 #include "contex.h"
@@ -20,7 +21,7 @@ int failerrno(const char *message) {
 int main(int argc, char **argv) {
     context_t *ctx;
     uint64_t time;
-    char *end;
+    char *end = NULL;
 
     errno = 0;
 
@@ -37,10 +38,12 @@ int main(int argc, char **argv) {
     //laboratory_t lab1, lab2, lab3;
     //infected_t infect1, infect2, infect3;
 
-    if(!context_set_time(ctx, time))
+    pthread_t tid;
+    if(!(tid = context_set_time(ctx, time)))
         return fail("Erro ao setar tempo do context.");
 
-    context_wait(ctx);
+    context_wait(ctx, tid);
+    pthread_join(tid, NULL);
 
     context_destroy(ctx);
 
