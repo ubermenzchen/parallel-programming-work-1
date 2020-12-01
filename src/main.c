@@ -43,7 +43,6 @@ int main(int argc, char **argv) {
         return fail("Erro ao setar tempo do context.");
 
     context_wait(ctx, tid);
-    pthread_join(tid, NULL);
 
     context_destroy(ctx);
 
